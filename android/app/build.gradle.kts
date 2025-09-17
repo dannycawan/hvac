@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -9,7 +9,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.hvac.fortworth"   // ✅ perbaiki, tadi ada "com.com"
+        applicationId = "com.hvac.fortworth"
         minSdk = 21
         targetSdk = 35
         versionCode = 1
@@ -18,9 +18,8 @@ android {
 
     buildTypes {
         release {
-            // Untuk rilis jangan lupa signConfig nanti
             isMinifyEnabled = false
-            shrinkResources = false
+            isShrinkResources = false   // ✅ perbaikan di sini
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -28,7 +27,17 @@ android {
         }
         debug {
             isMinifyEnabled = false
+            isShrinkResources = false   // optional
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 

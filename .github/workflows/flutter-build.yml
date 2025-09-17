@@ -1,4 +1,4 @@
-name: Flutter Build
+name: Flutter Build CI/CD
 
 on:
   push:
@@ -11,35 +11,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Setup Java (Android 15 / API 35 butuh Java 17)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # 3. Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.27.0" # Versi Flutter yang stabil di runner
+          flutter-version: "3.27.0"
+          cache: true
 
+      # 4. Cache Gradle
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 5. Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK (release)
-        run: flutter build apk --release
+      # 6. Check formatting (opsional, bisa hapus kalau ga mau strict)
+      - name: Flutter analyze
+        run: flutter analyze
 
+      - name: Flutter format
+        run: flutter format --set-exit-if-changed .
+
+      # 7. Build APK (release)
+      - name: Build APK (release)
+        run: flutter build apk --release --target-platform android-arm64
+
+      # 8. Build AAB (release)
       - name: Build AAB (release)
         run: flutter build appbundle --release
 
-      # Debug: cek isi folder output
+      # 9. Debug: cek isi folder output
       - name: List build outputs
         run: ls -R build/app/outputs
 
-      # Upload APK sebagai artifact (pakai wildcard)
+      # 10. Upload APK sebagai artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: hvac-apk
           path: build/app/outputs/flutter-apk/*.apk
 
-      # Upload AAB sebagai artifact (pakai wildcard)
+      # 11. Upload AAB sebagai artifact
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
