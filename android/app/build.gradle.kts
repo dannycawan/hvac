@@ -9,7 +9,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.com.hvac.fortworth"
+        applicationId = "com.hvac.fortworth"   // ✅ perbaiki, tadi ada "com.com"
         minSdk = 21
         targetSdk = 35
         versionCode = 1
@@ -18,11 +18,16 @@ android {
 
     buildTypes {
         release {
+            // Untuk rilis jangan lupa signConfig nanti
             isMinifyEnabled = false
+            shrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isMinifyEnabled = false
         }
     }
 }
