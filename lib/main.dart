@@ -193,6 +193,7 @@ class _HomePageState extends State<HomePage> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
+      if (!mounted) return; // ✅ fix warning
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Cannot open: $url")));
