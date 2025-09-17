@@ -46,7 +46,6 @@ class _HomePageState extends State<HomePage> {
   // Ad Unit IDs
   final String bannerAdUnitId = "ca-app-pub-6721734106426198/5259469376";
   final String interstitialAdUnitId = "ca-app-pub-6721734106426198/7710531994";
-  final String nativeAdUnitId = "ca-app-pub-6721734106426198/6120735266";
   final String appOpenAdUnitId = "ca-app-pub-6721734106426198/2181490258";
 
   BannerAd? _bannerAd;
@@ -61,16 +60,11 @@ class _HomePageState extends State<HomePage> {
   double _minReviews = 0.0;
   double _maxReviews = 1000.0;
 
-  // Native ads
-  final List<NativeAd> _nativeAds = [];
-  final int _adInterval = 2; // every 2 listings
-
   @override
   void initState() {
     super.initState();
     _loadBannerAd();
     _loadInterstitialAd();
-    _loadNativeAds();
     _loadAppOpenAd();
 
     // Delay App Open Ad 3 seconds once
@@ -157,35 +151,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _loadNativeAds() {
-    for (int i = 0; i < (hvacData.length / _adInterval).ceil(); i++) {
-      final nativeAd = NativeAd(
-        adUnitId: nativeAdUnitId,
-        factoryId: 'listTile',
-        request: const AdRequest(),
-        listener: NativeAdListener(
-          onAdLoaded: (ad) {
-            setState(() {
-              _nativeAds.add(ad as NativeAd);
-            });
-          },
-          onAdFailedToLoad: (ad, error) {
-            ad.dispose();
-          },
-        ),
-      );
-      nativeAd.load();
-    }
-  }
-
   @override
   void dispose() {
     _bannerAd?.dispose();
     _interstitialAd?.dispose();
     _searchController.dispose();
-    for (var ad in _nativeAds) {
-      ad.dispose();
-    }
     super.dispose();
   }
 
@@ -257,123 +227,103 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // HVAC List + Native Ads every 2 listings
+          // HVAC List (tanpa Native Ads)
           Expanded(
             child: _filteredHvacData.isEmpty
                 ? const Center(child: Text('No data found.'))
                 : ListView.builder(
-                    itemCount: _filteredHvacData.length + _nativeAds.length,
+                    itemCount: _filteredHvacData.length,
                     itemBuilder: (context, index) {
-                      final int dataIndex = index - (index ~/ _adInterval);
+                      final item = _filteredHvacData[index];
+                      final rating = item["rating"] ?? "N/A";
+                      final reviewsCount = item["reviews_count"] ?? "0";
+                      final phoneNumber = item["phone_number"] ?? "";
+                      final website = item["website"] ?? "";
+                      final mapUrl = item["map_url"] ?? "";
 
-                      if (index > 0 && index % _adInterval == 0) {
-                        final int adIndex = (index ~/ _adInterval) - 1;
-                        if (adIndex < _nativeAds.length) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 10),
-                            height: 300,
-                            child: AdWidget(ad: _nativeAds[adIndex]),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      } else if (dataIndex < _filteredHvacData.length) {
-                        final item = _filteredHvacData[dataIndex];
-                        final rating = item["rating"] ?? "N/A";
-                        final reviewsCount = item["reviews_count"] ?? "0";
-                        final phoneNumber = item["phone_number"] ?? "";
-                        final website = item["website"] ?? "";
-                        final mapUrl = item["map_url"] ?? "";
-
-                        return GestureDetector(
-                          onTap: () {
-                            _showInterstitialAd();
-                          },
-                          child: Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            elevation: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item["name"] ?? "No Name",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
+                      return GestureDetector(
+                        onTap: () {
+                          _showInterstitialAd();
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item["name"] ?? "No Name",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  item["address_full"] ??
+                                      "Address not available",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 18,
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    item["address_full"] ??
-                                        "Address not available",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[700],
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '$rating ($reviewsCount reviews)',
+                                      style: const TextStyle(fontSize: 14),
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                        size: 18,
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 8.0,
+                                  runSpacing: 4.0,
+                                  children: [
+                                    if (phoneNumber.isNotEmpty)
+                                      ActionChip(
+                                        avatar: const Icon(
+                                          Icons.phone,
+                                          size: 18,
+                                        ),
+                                        label: const Text('Call'),
+                                        onPressed: () =>
+                                            _launchUrl('tel:$phoneNumber'),
                                       ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '$rating ($reviewsCount reviews)',
-                                        style: const TextStyle(fontSize: 14),
+                                    if (website.isNotEmpty)
+                                      ActionChip(
+                                        avatar: const Icon(
+                                          Icons.public,
+                                          size: 18,
+                                        ),
+                                        label: const Text('Website'),
+                                        onPressed: () => _launchUrl(website),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Wrap(
-                                    spacing: 8.0,
-                                    runSpacing: 4.0,
-                                    children: [
-                                      if (phoneNumber.isNotEmpty)
-                                        ActionChip(
-                                          avatar: const Icon(
-                                            Icons.phone,
-                                            size: 18,
-                                          ),
-                                          label: const Text('Call'),
-                                          onPressed: () =>
-                                              _launchUrl('tel:$phoneNumber'),
-                                        ),
-                                      if (website.isNotEmpty)
-                                        ActionChip(
-                                          avatar: const Icon(
-                                            Icons.public,
-                                            size: 18,
-                                          ),
-                                          label: const Text('Website'),
-                                          onPressed: () => _launchUrl(website),
-                                        ),
-                                      if (mapUrl.isNotEmpty)
-                                        ActionChip(
-                                          avatar: const Icon(
-                                            Icons.map,
-                                            size: 18,
-                                          ),
-                                          label: const Text('Map'),
-                                          onPressed: () => _launchUrl(mapUrl),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    if (mapUrl.isNotEmpty)
+                                      ActionChip(
+                                        avatar: const Icon(Icons.map, size: 18),
+                                        label: const Text('Map'),
+                                        onPressed: () => _launchUrl(mapUrl),
+                                      ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
+                        ),
+                      );
                     },
                   ),
           ),
