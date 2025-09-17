@@ -6,11 +6,9 @@ plugins {
 
     // Kotlin versi stabil (disarankan Flutter stable)
     id("org.jetbrains.kotlin.android") version "1.9.24" apply false
-
-    // Flutter Gradle plugin loader
-    id("dev.flutter.flutter-plugin-loader") version "1.0.0" apply false
 }
 
+// Repositori global
 allprojects {
     repositories {
         google()
