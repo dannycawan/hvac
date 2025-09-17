@@ -1,5 +1,3 @@
-Aku ingin melengkapi ini
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -133,15 +131,15 @@ class _HomePageState extends State<HomePage> {
           _interstitialAd = ad;
           _interstitialAd!.fullScreenContentCallback =
               FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-              _loadInterstitialAd();
-            },
-            onAdFailedToShowFullScreenContent: (ad, error) {
-              ad.dispose();
-              _loadInterstitialAd();
-            },
-          );
+                onAdDismissedFullScreenContent: (ad) {
+                  ad.dispose();
+                  _loadInterstitialAd();
+                },
+                onAdFailedToShowFullScreenContent: (ad, error) {
+                  ad.dispose();
+                  _loadInterstitialAd();
+                },
+              );
         },
         onAdFailedToLoad: (err) {
           _interstitialAd = null;
@@ -195,9 +193,9 @@ class _HomePageState extends State<HomePage> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Cannot open: $url")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Cannot open: $url")));
     }
   }
 
@@ -208,7 +206,8 @@ class _HomePageState extends State<HomePage> {
       final rating = double.tryParse(item["rating"] ?? '0.0') ?? 0.0;
       final reviews = double.tryParse(item["reviews_count"] ?? '0') ?? 0.0;
 
-      final matchesSearch = _searchText.isEmpty ||
+      final matchesSearch =
+          _searchText.isEmpty ||
           name.contains(_searchText.toLowerCase()) ||
           address.contains(_searchText.toLowerCase());
       final matchesRating = rating >= _minRating && rating <= _maxRating;
@@ -262,11 +261,9 @@ class _HomePageState extends State<HomePage> {
             child: _filteredHvacData.isEmpty
                 ? const Center(child: Text('No data found.'))
                 : ListView.builder(
-                    itemCount:
-                        _filteredHvacData.length + _nativeAds.length,
+                    itemCount: _filteredHvacData.length + _nativeAds.length,
                     itemBuilder: (context, index) {
-                      final int dataIndex =
-                          index - (index ~/ _adInterval);
+                      final int dataIndex = index - (index ~/ _adInterval);
 
                       if (index > 0 && index % _adInterval == 0) {
                         final int adIndex = (index ~/ _adInterval) - 1;
@@ -300,8 +297,7 @@ class _HomePageState extends State<HomePage> {
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     item["name"] ?? "No Name",
@@ -330,8 +326,7 @@ class _HomePageState extends State<HomePage> {
                                       const SizedBox(width: 4),
                                       Text(
                                         '$rating ($reviewsCount reviews)',
-                                        style: const TextStyle(
-                                            fontSize: 14),
+                                        style: const TextStyle(fontSize: 14),
                                       ),
                                     ],
                                   ),
@@ -342,27 +337,31 @@ class _HomePageState extends State<HomePage> {
                                     children: [
                                       if (phoneNumber.isNotEmpty)
                                         ActionChip(
-                                          avatar: const Icon(Icons.phone,
-                                              size: 18),
+                                          avatar: const Icon(
+                                            Icons.phone,
+                                            size: 18,
+                                          ),
                                           label: const Text('Call'),
                                           onPressed: () =>
                                               _launchUrl('tel:$phoneNumber'),
                                         ),
                                       if (website.isNotEmpty)
                                         ActionChip(
-                                          avatar: const Icon(Icons.public,
-                                              size: 18),
+                                          avatar: const Icon(
+                                            Icons.public,
+                                            size: 18,
+                                          ),
                                           label: const Text('Website'),
-                                          onPressed: () =>
-                                              _launchUrl(website),
+                                          onPressed: () => _launchUrl(website),
                                         ),
                                       if (mapUrl.isNotEmpty)
                                         ActionChip(
-                                          avatar: const Icon(Icons.map,
-                                              size: 18),
+                                          avatar: const Icon(
+                                            Icons.map,
+                                            size: 18,
+                                          ),
                                           label: const Text('Map'),
-                                          onPressed: () =>
-                                              _launchUrl(mapUrl),
+                                          onPressed: () => _launchUrl(mapUrl),
                                         ),
                                     ],
                                   ),
