@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: hvac  # pastikan semua command jalan dari folder project
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,7 +28,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.27.0"
-          channel: "stable"
 
       - name: Install dependencies
         run: flutter pub get
@@ -42,10 +45,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hvac-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/*.apk
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: hvac-aab
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: build/app/outputs/bundle/release/*.aab
